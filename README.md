@@ -60,22 +60,30 @@ for i in range(1,n+1):
 plt.show()
 
 input_img = keras.Input(shape=(28, 28, 1))
-x=layers.Conv2D(16,(3,3),activation='relu',padding='same')(input_img)
+
+x=layers.Conv2D(16,(5,5),activation='relu',padding='same')(input_img)
 x=layers.MaxPooling2D((2,2),padding='same')(x)
-x=layers.Conv2D(8,(3,3),activation='relu',padding='same')(x)
+x=layers.Conv2D(4,(3,3),activation='relu',padding='same')(x)
 x=layers.MaxPooling2D((2,2),padding='same')(x)
-x=layers.Conv2D(8,(3,3),activation='relu',padding='same')(x)
+x=layers.Conv2D(4,(3,3),activation='relu',padding='same')(x)
+x=layers.MaxPooling2D((2,2),padding='same')(x)
+x=layers.Conv2D(8,(7,7),activation='relu',padding='same')(x)
 encoded = layers.MaxPooling2D((2, 2), padding='same')(x)
 
-x=layers.Conv2D(8,(3,3),activation='relu',padding='same')(encoded)
+x=layers.Conv2D(4,(3,3),activation='relu',padding='same')(encoded)
 x=layers.UpSampling2D((2,2))(x)
-x=layers.Conv2D(8,(3,3),activation='relu',padding='same')(x)
+x=layers.Conv2D(4,(3,3),activation='relu',padding='same')(x)
 x=layers.UpSampling2D((2,2))(x)
-x=layers.Conv2D(16,(3,3),activation='relu')(x)
+x=layers.Conv2D(8,(5,5),activation='relu',padding='same')(x)
 x=layers.UpSampling2D((2,2))(x)
+x=layers.Conv2D(16,(5,5),activation='relu',padding='same')(x)
+x=layers.UpSampling2D((2,2))(x)
+x=layers.Conv2D(16,(5,5),activation='relu')(x)
+x=layers.UpSampling2D((1,1))(x)
 decoded = layers.Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)
 
 autoencoder = keras.Model(input_img, decoded)
+
 
 autoencoder.summary()
 autoencoder.compile(optimizer='adam',loss='binary_crossentropy')
@@ -84,6 +92,9 @@ autoencoder.fit(x_train_noisy, x_train_scaled,
                 batch_size=128,
                 shuffle=True,
                 validation_data=(x_test_noisy, x_test_scaled))
+
+metrics = pd.DataFrame(autoencoder.history.history)
+metrics[['loss','val_loss']].plot()
 
 decoded_imgs = autoencoder.predict(x_test_noisy)
 
@@ -116,10 +127,10 @@ plt.show()
 ## OUTPUT
 
 ### Training Loss, Validation Loss Vs Iteration Plot
-![](2.png)
+![](3.png)
 
 ### Original vs Noisy Vs Reconstructed Image
-![](2.png)
+![](4.png)
 
 ## RESULT
 Thus, a Convolutional Autoencoder for Denoising was sucessfully implemented.
